@@ -44,11 +44,13 @@ export class MaquinaTuring {
     estadoInicial: Estado,
     funcionTransicion: FuncionTransicion,
     simboloBlanco: SimboloCinta = '_',
-    estadosAceptacion: Set<Estado> = new Set()
+    estadosAceptacion: Set<Estado> = new Set(),
+    posicionInicialCabezal: number = 0
+
   ) {
     this.cinta = {
       simbolos: [...cintaInicial],
-      posicionCabezal: 0
+      posicionCabezal: posicionInicialCabezal
     };
     this.estadoActual = estadoInicial;
     this.funcionTransicion = funcionTransicion;

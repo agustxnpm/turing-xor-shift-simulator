@@ -1,0 +1,167 @@
+<div class="tm-simulator">
+  <!-- Encabezado -->
+  <header class="simulator-header">
+    <h1>Simulador de Máquina de Turing</h1>
+    <p class="subtitle">Visualización paso a paso del algoritmo</p>
+  </header>
+
+  <!-- Selector de Ejemplos -->
+  <section class="ejemplos-section">
+    <h2>Seleccionar Ejemplo</h2>
+    <div class="button-group">
+      <button 
+        class="btn btn-example"
+        (click)="inicializarEjemploXorShift()"
+        title="Algoritmo XOR-Shift para generación de números pseudoaleatorios">
+        <span class="btn-icon">🎲</span>
+        XOR-Shift PRNG
+      </button>
+      <button 
+        class="btn btn-example"
+        (click)="inicializarEjemploSucesor()"
+        title="Algoritmo de sucesor binario">
+        <span class="btn-icon">➕</span>
+        Sucesor Binario
+      </button>
+    </div>
+  </section>
+
+  <!-- Diagrama de Estados -->
+  <app-diagrama-estados
+    [funcionTransicion]="funcionTransicion"
+    [estadoActual]="obtenerEstadoActual()"
+    [estadoInicial]="estadoInicial"
+    [estadosAceptacion]="estadosAceptacion"
+    [width]="700"
+    [height]="450">
+  </app-diagrama-estados>
+
+  <!-- Panel de información -->
+  <section class="info-panel">
+    <div class="info-item">
+      <span class="label">Estado Actual:</span>
+      <span class="value state-badge" [class.accepting]="estaEnEstadoAceptacion()">
+        {{ obtenerEstadoActual() }}
+      </span>
+    </div>
+    <div class="info-item">
+      <span class="label">Pasos Ejecutados:</span>
+      <span class="value">{{ pasosEjecutados }}</span>
+    </div>
+    <div class="info-item">
+      <span class="label">Posición Cabezal:</span>
+      <span class="value">{{ obtenerPosicionCabezal() }}</span>
+    </div>
+    <div class="info-item">
+      <span class="label">Estado:</span>
+      <span class="value status-badge" 
+            [class.halted]="estaDetenida()" 
+            [class.running]="!estaDetenida()">
+        {{ estaDetenida() ? 'Detenida' : 'Ejecutando' }}
+      </span>
+    </div>
+  </section>
+
+  <!-- Visualización de la cinta -->
+  <section class="tape-section">
+    <h2>Cinta</h2>
+    <div class="tape-container">
+      <div class="tape-wrapper">
+        <span *ngFor="let simbolo of obtenerCinta(); let i = index"
+              class="tape-cell"
+              [class.active-head]="i === obtenerPosicionCabezal()"
+              [class.blank]="simbolo === '_'">
+          {{ simbolo }}
+        </span>
+      </div>
+    </div>
+    <div class="tape-legend" *ngIf="obtenerPosicionCabezal() >= 0">
+      <span class="legend-item">
+        <span class="legend-marker head"></span> Cabezal
+      </span>
+      <span class="legend-item">
+        <span class="legend-marker blank"></span> Celda vacía
+      </span>
+    </div>
+  </section>
+
+  <!-- Controles -->
+  <section class="controls-section">
+    <h2>Controles</h2>
+    
+    <!-- NUEVO: CONTROL DE VELOCIDAD -->
+    <div class="speed-control-group">
+      <label for="speed-slider" class="speed-label">
+        Velocidad ({{ velocidadEjecucion }} ms/paso): 
+      </label>
+      <input 
+        id="speed-slider"
+        type="range" 
+        min="1" 
+        max="1000" 
+        step="10" 
+        [(ngModel)]="velocidadEjecucion" 
+        [disabled]="ejecutandose"
+        class="speed-slider">
+      <span class="speed-min">Rápido</span>
+      <span class="speed-max">Lento</span>
+    </div>
+
+    <div class="button-group">
+      <button 
+        class="btn btn-primary"
+        (click)="onPaso()"
+        [disabled]="estaDetenida() || ejecutandose"
+        title="Ejecutar un paso">
+        <span class="btn-icon">▶</span>
+        Paso
+      </button>
+
+      <button 
+        class="btn btn-success"
+        (click)="onEjecutar()"
+        [disabled]="estaDetenida()"
+        title="{{ ejecutandose ? 'Detener ejecución' : 'Ejecutar continuamente' }}">
+        <span class="btn-icon">{{ ejecutandose ? '⏸' : '▶▶' }}</span>
+        {{ ejecutandose ? 'Pausar' : 'Ejecutar' }}
+      </button>
+
+      <button 
+        class="btn btn-warning"
+        (click)="onEjecutarInstantanea()"
+        [disabled]="estaDetenida() || ejecutandose"
+        title="Ejecutar hasta detenerse">
+        <span class="btn-icon">⚡</span>
+        Ejecutar Instantánea
+      </button>
+
+      <button 
+        class="btn btn-secondary"
+        (click)="onReiniciar()"
+        title="Reiniciar la máquina">
+        <span class="btn-icon">↻</span>
+        Reiniciar
+      </button>
+    </div>
+
+    <div class="status-message" *ngIf="estaDetenida()">
+      <span class="icon">ℹ</span>
+      <span *ngIf="estaEnEstadoAceptacion()">
+        La máquina ha terminado en un <strong>estado de aceptación</strong>.
+      </span>
+      <span *ngIf="!estaEnEstadoAceptacion()">
+        La máquina se ha <strong>detenido</strong>. No hay transición disponible.
+      </span>
+    </div>
+  </section>
+
+  <!-- Información adicional -->
+  <footer class="simulator-footer">
+    <p class="info-text">
+      <strong>Ejemplo actual:</strong> XOR-Shift PRNG
+    </p>
+    <p class="help-text">
+      Use los controles para ejecutar la máquina paso a paso o de forma continua.
+    </p>
+  </footer>
+</div>
