@@ -28,10 +28,16 @@ export class MaquinaTuringComponent implements OnInit, OnDestroy {
   
   private intervaloEjecucion: any = null;
   ejecutandose: boolean = false;
-  velocidadEjecucion: number = 1; // Un poco más rápido por defecto
+  velocidadEjecucion: number = 10; // Un poco más rápido por defecto
 
   // NUEVO: Contador de pasos ejecutados
   pasosEjecutados: number = 0;
+
+  // Configuración editable desde UI
+  semillaInicial: string = '110010';
+  desplazamientoA: number = 1;
+  desplazamientoB: number = 2;
+  desplazamientoC: number = 1;
 
   ngOnInit(): void {
     this.inicializarEjemploXorShift();
@@ -41,12 +47,26 @@ export class MaquinaTuringComponent implements OnInit, OnDestroy {
     this.detenerEjecucion();
   }
 
+  get ciclosEjecutados(): number {
+      if (this.contarEntradasHistorial() === 0) {
+          return 0;
+      }
+    return this.contarEntradasHistorial() - 1;
+  }
+
+  private contarEntradasHistorial(): number {
+    const cinta = this.obtenerCinta();
+    const historial = cinta.join('').substring(24);
+    const matches = historial.match(/\$/g);
+    return matches ? matches.length : 0;
+  }
+
   inicializarEjemploXorShift(): void {
     const config: ConfiguracionXorShift = {
-      semillaInicial: '110010',
-      desplazamientoA: 1,
-      desplazamientoB: 3,
-      desplazamientoC: 2
+      semillaInicial: this.semillaInicial,
+      desplazamientoA: this.desplazamientoA,
+      desplazamientoB: this.desplazamientoB,
+      desplazamientoC: this.desplazamientoC
     };
 
     const orquestador = new OrquestadorXorShift(config);
@@ -54,39 +74,15 @@ export class MaquinaTuringComponent implements OnInit, OnDestroy {
     this.funcionTransicion = orquestador.obtenerFuncionTransicion();
     this.cintaInicial = orquestador.obtenerCintaInicial();
     
-    // CORRECCIÓN CRÍTICA: Obtener la posición desde el orquestador
     this.posicionInicialCabezal = orquestador.obtenerPosicionInicialCabezal();
     
     this.estadoInicial = 'q_inicio';
     this.simboloBlanco = '_';
-    this.estadosAceptacion = new Set(['q_HALT_CICLO_ENCONTRADO']); // Nombre real del estado final
+    this.estadosAceptacion = new Set(['q_HALT_CICLO_ENCONTRADO']);
 
     this.crearMaquina();
   }
 
-  inicializarEjemploSucesor(): void {
-    this.cintaInicial = ['1', '1', '1', '0', '1','1', '0'];
-    this.estadoInicial = 'q0';
-    this.simboloBlanco = '_';
-    this.estadosAceptacion = new Set(['q_halt']);
-    this.posicionInicialCabezal = 0; // El sucesor sí empieza en 0
-
-    this.funcionTransicion = new Map();
-    // ... (reglas del sucesor igual que antes)
-    const q0Rules = new Map();
-    q0Rules.set('0', { nuevoEstado: 'q0', simboloEscribir: '0', moverDireccion: 'D' });
-    q0Rules.set('1', { nuevoEstado: 'q0', simboloEscribir: '1', moverDireccion: 'D' });
-    q0Rules.set('_', { nuevoEstado: 'q1', simboloEscribir: '_', moverDireccion: 'I' });
-    this.funcionTransicion.set('q0', q0Rules);
-
-    const q1Rules = new Map();
-    q1Rules.set('0', { nuevoEstado: 'q_halt', simboloEscribir: '1', moverDireccion: 'N' });
-    q1Rules.set('1', { nuevoEstado: 'q1', simboloEscribir: '0', moverDireccion: 'I' });
-    q1Rules.set('_', { nuevoEstado: 'q_halt', simboloEscribir: '1', moverDireccion: 'N' });
-    this.funcionTransicion.set('q1', q1Rules);
-
-    this.crearMaquina();
-  }
 
   private crearMaquina(): void {
     // Pasar la posición inicial al constructor
@@ -105,6 +101,9 @@ export class MaquinaTuringComponent implements OnInit, OnDestroy {
     if (!this.mt.estaDetenida()) {
       this.mt.paso();
       this.pasosEjecutados++;
+      if (this.mt.estaDetenida()) {
+        console.log('Contenido final de la cinta:', this.obtenerCinta().join(''));
+      }
     }
   }
 
@@ -117,6 +116,7 @@ export class MaquinaTuringComponent implements OnInit, OnDestroy {
     this.intervaloEjecucion = setInterval(() => {
       if (this.mt.estaDetenida()) {
         this.detenerEjecucion();
+        console.log('Contenido final de la cinta:', this.obtenerCinta().join(''));
       } else {
         this.mt.paso();
         this.pasosEjecutados++;
@@ -132,6 +132,7 @@ export class MaquinaTuringComponent implements OnInit, OnDestroy {
       this.mt.paso();
       this.pasosEjecutados++;
     }
+    console.log('Contenido final de la cinta:', this.obtenerCinta().join(''));
   }
 
   private detenerEjecucion(): void {
@@ -145,6 +146,12 @@ export class MaquinaTuringComponent implements OnInit, OnDestroy {
   onReiniciar(): void {
     this.detenerEjecucion();
     this.crearMaquina();
+    this.pasosEjecutados = 0;
+  }
+
+  reinicializarMaquina(): void {
+    this.detenerEjecucion();
+    this.inicializarEjemploXorShift();
     this.pasosEjecutados = 0;
   }
 

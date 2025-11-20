@@ -51,6 +51,10 @@ export class DiagramaEstados implements AfterViewInit, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['funcionTransicion'] && !changes['funcionTransicion'].firstChange) {
+      // Detener simulación anterior antes de reconstruir
+      if (this.simulation) {
+        this.simulation.stop();
+      }
       this.construirGrafo();
       this.renderizarGrafo();
     }
@@ -66,11 +70,11 @@ export class DiagramaEstados implements AfterViewInit, OnChanges {
       .append('svg')
       .attr('width', this.width)
       .attr('height', this.height)
-      .attr('viewBox', `0 0 ${this.width} ${this.height}`);
+      .attr('viewBox', `-100 -100 ${this.width + 200} ${this.height + 200}`);
 
-    // Agregar zoom
+    // Agregar zoom con mayor rango
     const zoom = d3.zoom()
-      .scaleExtent([0.5, 3])
+      .scaleExtent([0.1, 5])
       .on('zoom', (event) => {
         this.g.attr('transform', event.transform);
       });
@@ -142,6 +146,11 @@ export class DiagramaEstados implements AfterViewInit, OnChanges {
 
   private renderizarGrafo(): void {
     if (!this.g || this.nodos.length === 0) return;
+
+    // Detener simulación anterior si existe
+    if (this.simulation) {
+      this.simulation.stop();
+    }
 
     // Limpiar el contenido anterior
     this.g.selectAll('*').remove();

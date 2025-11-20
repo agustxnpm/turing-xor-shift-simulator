@@ -1,13 +1,22 @@
 .diagrama-container {
   background: #ffffff;
   border-radius: 8px;
-  padding: 20px;
+  padding: 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 30px;
+  position: relative; // Para posicionar absolutos
+  height: 600px; // Altura fija
+  width: 1000px; // Ancho fijo
 
   .diagrama-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
     margin-bottom: 15px;
     text-align: center;
+    padding: 20px 20px 0 20px;
 
     h3 {
       margin: 0 0 5px 0;
@@ -24,14 +33,22 @@
   }
 
   .svg-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     border: 1px solid #e1e8ed;
     border-radius: 6px;
     background: #f8f9fa;
     overflow: hidden;
+    z-index: 1;
     
     svg {
       display: block;
       cursor: grab;
+      width: 100%;
+      height: 100%;
 
       &:active {
         cursor: grabbing;
@@ -40,12 +57,17 @@
   }
 
   .diagrama-legend {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
     display: flex;
     justify-content: center;
     gap: 20px;
     margin-top: 15px;
-    padding: 10px;
-    background: #f8f9fa;
+    padding: 0 20px 20px 20px;
+    background: rgba(248, 249, 250, 0.9); // Semi-transparente
     border-radius: 6px;
 
     .legend-item {

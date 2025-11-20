@@ -5,24 +5,27 @@
     <p class="subtitle">Visualización paso a paso del algoritmo</p>
   </header>
 
-  <!-- Selector de Ejemplos -->
-  <section class="ejemplos-section">
-    <h2>Seleccionar Ejemplo</h2>
-    <div class="button-group">
-      <button 
-        class="btn btn-example"
-        (click)="inicializarEjemploXorShift()"
-        title="Algoritmo XOR-Shift para generación de números pseudoaleatorios">
-        <span class="btn-icon">🎲</span>
-        XOR-Shift PRNG
-      </button>
-      <button 
-        class="btn btn-example"
-        (click)="inicializarEjemploSucesor()"
-        title="Algoritmo de sucesor binario">
-        <span class="btn-icon">➕</span>
-        Sucesor Binario
-      </button>
+  <!-- Configuración de XOR-Shift -->
+  <section class="config-section">
+    <h2>Configuración XOR-Shift</h2>
+    <div class="config-form">
+      <div class="form-group">
+        <label for="semilla">Semilla Inicial:</label>
+        <input id="semilla" type="text" [(ngModel)]="semillaInicial" placeholder="Ej: 110010">
+      </div>
+      <div class="form-group">
+        <label for="despA">Desplazamiento A:</label>
+        <input id="despA" type="number" [(ngModel)]="desplazamientoA" min="0">
+      </div>
+      <div class="form-group">
+        <label for="despB">Desplazamiento B:</label>
+        <input id="despB" type="number" [(ngModel)]="desplazamientoB" min="0">
+      </div>
+      <div class="form-group">
+        <label for="despC">Desplazamiento C:</label>
+        <input id="despC" type="number" [(ngModel)]="desplazamientoC" min="0">
+      </div>
+      <button class="btn btn-primary" (click)="reinicializarMaquina()">Aplicar Configuración</button>
     </div>
   </section>
 
@@ -32,8 +35,8 @@
     [estadoActual]="obtenerEstadoActual()"
     [estadoInicial]="estadoInicial"
     [estadosAceptacion]="estadosAceptacion"
-    [width]="700"
-    [height]="450">
+    [width]="1000"
+    [height]="600">
   </app-diagrama-estados>
 
   <!-- Panel de información -->
@@ -43,6 +46,10 @@
       <span class="value state-badge" [class.accepting]="estaEnEstadoAceptacion()">
         {{ obtenerEstadoActual() }}
       </span>
+    </div>
+    <div class="info-item">
+      <span class="label">Ciclos Ejecutados:</span>
+      <span class="value">{{ ciclosEjecutados }}</span>
     </div>
     <div class="info-item">
       <span class="label">Pasos Ejecutados:</span>
@@ -70,7 +77,8 @@
         <span *ngFor="let simbolo of obtenerCinta(); let i = index"
               class="tape-cell"
               [class.active-head]="i === obtenerPosicionCabezal()"
-              [class.blank]="simbolo === '_'">
+              [class.blank]="simbolo === '_'"
+              [class.marcador]="simbolo === '@' || simbolo === '#' || simbolo === '$'">
           {{ simbolo }}
         </span>
       </div>
@@ -82,6 +90,9 @@
       <span class="legend-item">
         <span class="legend-marker blank"></span> Celda vacía
       </span>
+      <span class="legend-item">
+        <span class="legend-marker marcador"></span> Marcadores
+      </span>
     </div>
   </section>
 
@@ -92,19 +103,21 @@
     <!-- NUEVO: CONTROL DE VELOCIDAD -->
     <div class="speed-control-group">
       <label for="speed-slider" class="speed-label">
-        Velocidad ({{ velocidadEjecucion }} ms/paso): 
+        Velocidad de Ejecución: {{ velocidadEjecucion }} ms/paso
       </label>
       <input 
         id="speed-slider"
         type="range" 
-        min="1" 
+        min="5" 
         max="1000" 
-        step="10" 
+        step="1" 
         [(ngModel)]="velocidadEjecucion" 
         [disabled]="ejecutandose"
         class="speed-slider">
-      <span class="speed-min">Rápido</span>
-      <span class="speed-max">Lento</span>
+      <div class="speed-indicators">
+        <span class="speed-min">Rápido</span>
+        <span class="speed-max">Lento</span>
+      </div>
     </div>
 
     <div class="button-group">
@@ -154,14 +167,4 @@
       </span>
     </div>
   </section>
-
-  <!-- Información adicional -->
-  <footer class="simulator-footer">
-    <p class="info-text">
-      <strong>Ejemplo actual:</strong> XOR-Shift PRNG
-    </p>
-    <p class="help-text">
-      Use los controles para ejecutar la máquina paso a paso o de forma continua.
-    </p>
-  </footer>
 </div>

@@ -98,6 +98,6 @@ export interface MaquinaTuring {
   /** δ: Función de transición */
   funcionTransicion: FuncionTransicion;
   
-  /** Símbolo que representa una celda vacía en la cinta (usualmente '_') */
+  /** Símbolo que representa una celda vacía en la cinta (_) */
   simboloBlanco: SimboloCinta;
 }

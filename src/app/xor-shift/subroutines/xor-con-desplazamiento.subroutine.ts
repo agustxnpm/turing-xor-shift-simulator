@@ -12,7 +12,7 @@ export function crearSubrutinaXorConDesplazamiento(
   estadoInicio: string,
   estadoFin: string,
   desplazamiento: number,
-  namespace: string // <-- ¡NUEVO!
+  namespace: string //
 ): FuncionTransicion {
   const reglas = new Map();
   const LEN_PALABRA = 6; // Asumido por el TP
